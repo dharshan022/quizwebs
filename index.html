@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sridharshan Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: slideIn 2s ease-in-out;
+    }
+
+    @keyframes slideIn {
+      0% { opacity: 0; transform: translateY(-20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 30px;
+      width: 90%;
+      max-width: 480px;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      animation: fadeIn 1.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    input, button {
+      width: 100%;
+      margin: 12px 0;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+    }
+
+    input {
+      background: #fff;
+      color: #000;
+    }
+
+    button {
+      background-color: #00c9a7;
+      color: #fff;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #00a994;
+      transform: scale(1.05);
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    #timer {
+      font-size: 1.5rem;
+      margin: 10px 0;
+      color: #ffd700;
+      font-weight: bold;
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease-in;
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Page -->
+  <div id="login-page" class="container fade-in">
+    <h2>✨ Sridharshan Quiz</h2>
+    <input type="text" id="username" placeholder="Enter your name" />
+    <button onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <!-- Quiz Page -->
+  <div id="quiz-page" class="container fade-in" style="display:none;">
+    <h2 id="greetUser"></h2>
+    <div id="timer">30</div>
+    <div id="question-box"></div>
+    <div id="options-box"></div>
+    <div class="nav-buttons">
+      <button onclick="prevQuestion()">Previous</button>
+      <button onclick="nextQuestion()">Next</button>
+      <button id="submitBtn" onclick="submitQuiz()" style="display:none;">Submit</button>
+    </div>
+  </div>
+
+  <!-- Result Page -->
+  <div id="result-page" class="container fade-in" style="display:none;">
+    <h2>🎉 Congrats, <span id="result-username"></span>!</h2>
+    <p>You scored <strong><span id="score"></span> / 20</strong></p>
+    <button onclick="window.location.reload()">Restart Quiz</button>
+    <button onclick="endQuiz()">End Quiz</button>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "What does XML stand for?", opts: ["Extra Modern Language", "Executable Markup Language", "Extensible Markup Language", "External Markup Language"], ans: "Executable Markup Language" },
+      { q: "What is the main purpose of XML?", opts: ["To style HTML documents", "To store and transport data", "To create hyperlinks", "To generate videos"], ans: "To store and transport data" },
+      { q: "Which of the following is a correct XML tag?", opts: ["<value>123<value>", "<value>123</value>", "<value>123>", "value>123</value>"], ans: "<value>123</value>" },
+      { q: "XML is:", opts: ["Case-insensitive", "Case-sensitive", "Used to format text", "Only works with HTML"], ans: "Case-sensitive" },
+      { q: "Which of these is not a valid use of XML?", opts: ["Data storage", "Web services communication", "Styling web pages", "Config files"], ans: "Web services communication" },
+      { q: "Which characters must be escaped in XML?", opts: ["<, >, &", "$, %, ^", "*, /, @", "+, -, ="], ans: "$, %, ^" },
+      { q: "What ensures XML follows a structure?", opts: ["CSS", "HTML", "DTD or XML Schema", "JavaScript"], ans: "HTML" },
+      { q: "What is a well-formed XML document?", opts: ["One that includes a header", "One that is short", "One that follows syntax rules", "One that uses CDATA"], ans: "One that is short" },
+      { q: "What does SOAP use to format data?", opts: ["HTML", "JSON", "XML", "CSS"], ans: "JSON" },
+      { q: "What is WSDL used for?", opts: ["Formatting webpages", "Styling web services", "Describing web service operations", "Storing passwords"], ans: "Styling web services" },
+      { q: "Which architecture defines reusable services via SOAP/WSDL?", opts: ["Monolithic", "RESTful", "SOA", "Serverless"], ans: "RESTful" },
+      { q: "Which of the following best describes SOA?", opts: ["Monolithic structure", "Peer-to-peer chat", "Services communicate using standardized protocols", "GUI development model"], ans: "Peer-to-peer chat" },
+      { q: "Which protocol is commonly used by Web Services?", opts: ["FTP", "SMTP", "HTTP", "SNMP"], ans: "SMTP" },
+      { q: "What is a core feature of Web Services?", opts: ["Vendor lock-in", "Tight coupling", "Platform independence", "Desktop-only compatibility"], ans: "Tight coupling" },
+      { q: "In which domain are Web Services NOT commonly used?", opts: ["E-commerce", "Healthcare", "Social media", "Manual paper-based systems"], ans: "Healthcare" },
+      { q: "Which of these best describes a “dumb terminal”?", opts: ["It stores local data", "It processes everything locally", "It has no processing power and depends on server", "It renders 3D graphics"], ans: "It processes everything locally" },
+      { q: "Which type of client processes most logic locally?", opts: ["Thin client", "Thick client", "Web browser", "Terminal"], ans: "Thick client" },
+      { q: "What is a major disadvantage of thick clients?", opts: ["Requires no hardware", "Difficult to maintain individually", "Cannot work offline", "Too simple for modern apps"], ans: "Difficult to maintain individually" },
+      { q: "Which XML-based language transforms XML into HTML or PDF?", opts: ["XPath", "SOAP", "XSLT", "JSON"], ans: "SOAP" },
+      { q: "What is the first step in building a web service?", opts: ["Consuming the service", "Describing it using WSDL", "Running business logic", "Encrypting the code"], ans: "Describing it using WSDL" }
+    ];
+
+    let index = 0;
+    let username = "";
+    let answers = Array(questions.length).fill(null);
+    let timer, timeLeft = 30;
+
+    function startQuiz() {
+      username = document.getElementById("username").value.trim();
+      if (!username) return alert("Please enter your name");
+      document.getElementById("login-page").style.display = "none";
+      document.getElementById("quiz-page").style.display = "block";
+      document.getElementById("greetUser").innerText = `Hi, ${username}`;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      clearInterval(timer);
+      timeLeft = 30;
+      document.getElementById("timer").innerText = timeLeft;
+
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = timeLeft;
+        if (timeLeft <= 0) nextQuestion();
+      }, 1000);
+
+      const q = questions[index];
+      document.getElementById("question-box").innerText = `Q${index + 1}: ${q.q}`;
+      document.getElementById("options-box").innerHTML = q.opts.map(opt =>
+        `<button onclick="select('${opt}')">${opt}</button>`
+      ).join("");
+
+      document.getElementById("submitBtn").style.display = (index === questions.length - 1) ? "inline-block" : "none";
+    }
+
+    function select(opt) {
+      answers[index] = opt;
+    }
+
+    function nextQuestion() {
+      if (index < questions.length - 1) index++;
+      showQuestion();
+    }
+
+    function prevQuestion() {
+      if (index > 0) index--;
+      showQuestion();
+    }
+
+    function submitQuiz() {
+      clearInterval(timer);
+      let score = answers.reduce((acc, ans, i) => ans === questions[i].ans ? acc + 1 : acc, 0);
+      document.getElementById("quiz-page").style.display = "none";
+      document.getElementById("result-page").style.display = "block";
+      document.getElementById("result-username").innerText = username;
+      document.getElementById("score").innerText = score;
+    }
+
+    function endQuiz() {
+      alert("Thanks for playing!");
+      window.location.href = "https://www.google.com";
+    }
+  </script>
+</body>
+</html>
